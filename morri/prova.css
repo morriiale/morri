@@ -1,0 +1,363 @@
+/* prova.css – la finestra "Provali su di te" (fotocamera, foto, colori) */
+
+.btn-aria {
+    pointer-events: auto;
+    background: #ffffff;
+    color: #1e1e1e;
+    border: solid 1px #d9d4ca;
+    border-radius: 3px;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;          /* tenendo premuto non si seleziona il testo */
+    -webkit-user-select: none;
+    touch-action: none;         /* sul telefono il dito non fa scorrere la pagina */
+}
+
+.btn-aria:hover {
+    border-color: #1e1e1e;
+}
+
+/* finché il modello non è caricato, il bottone è spento */
+.btn-aria:disabled {
+    opacity: 0.4;
+    cursor: wait;
+.btn-aria.attivo {
+    background: #1e1e1e;
+    border-color: #1e1e1e;
+    color: #ffffff;
+}
+.sovratitolo {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.5);
+    margin: 0 0 4px 0;
+}
+
+.descrizione {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.opzione {
+    border-top: solid 1px #e5e0d6;
+    padding: 16px 0;
+}
+
+.opzione-titolo {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.opzione-valore {
+    font-weight: normal;
+    color: rgba(0, 0, 0, 0.55);
+}
+
+/* PASSO 5: i campioni in fila */
+.campioni {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* PASSO 6: i campioni diventano cerchi e quello scelto si riconosce */
+.campione {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: solid 1px rgba(0, 0, 0, 0.15);
+    padding: 0;
+    cursor: pointer;
+}
+
+.campione.selected {
+    outline: solid 2px #1e1e1e;
+    outline-offset: 2px;
+}
+
+
+/* ===== prova su di te: la finestra con la fotocamera (js/prova.js) ===== */
+.prova {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: #141414;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+.prova[hidden] {
+    display: none;
+}
+
+/* mentre la prova è aperta la pagina sotto non scorre */
+body.prova-aperta {
+    overflow: hidden;
+}
+
+.prova-barra {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px;
+}
+
+.prova-intestazione {
+    flex: 1;
+    min-width: 0;
+}
+
+.prova .sovratitolo {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.prova-titolo {
+    font-size: 22px;
+    line-height: 28px;
+    margin: 0;
+}
+
+.prova-misura {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.prova-misura input {
+    width: 140px;
+    accent-color: #ffffff;
+}
+
+.prova-area {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px 16px;
+}
+
+/* video e 3D sono girati come in uno specchio: muovi la testa a destra e va a destra */
+.prova-specchio {
+    position: relative;
+    transform: scaleX(-1);
+    border-radius: 4px;
+    overflow: hidden;
+    background: #000000;
+}
+
+.prova-specchio video {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.prova-specchio canvas {
+    position: absolute;
+    inset: 0;
+}
+
+.prova-stato {
+    position: absolute;
+    left: 50%;
+    bottom: 40px;
+    transform: translateX(-50%);
+    margin: 0;
+    max-width: calc(100% - 64px);
+    background: rgba(0, 0, 0, 0.65);
+    padding: 10px 16px;
+    border-radius: 3px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.prova-stato[hidden] {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .prova-misura {
+        order: 3;
+        width: 100%;
+    }
+    .prova-misura input {
+        flex: 1;
+    }
+}
+
+
+/* ===== la foto nella prova su di te ===== */
+/* il conto alla rovescia, grande al centro */
+.prova-conto {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 160px;
+    line-height: 1;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.prova-conto[hidden] {
+    display: none;
+}
+
+/* il lampo del flash: un bianco che compare e svanisce */
+.prova-lampo {
+    position: absolute;
+    inset: 0;
+    background: #ffffff;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.prova-lampo.scatto {
+    animation: lampo 0.5s ease-out;
+}
+
+@keyframes lampo {
+    from { opacity: 0.85; }
+    to   { opacity: 0; }
+}
+
+/* l'anteprima della foto, sopra il video */
+.prova-foto {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 20, 20, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 16px;
+}
+
+.prova-foto[hidden] {
+    display: none;
+}
+
+.prova-foto img {
+    max-width: 100%;
+    max-height: calc(100% - 140px);
+    border-radius: 4px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.prova-foto-comandi {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* il bottone principale: i colori di Instagram */
+.prova-condividi {
+    background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+    border-color: transparent;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.prova-condividi:hover {
+    border-color: #ffffff;
+}
+
+.prova-foto-nota {
+    margin: 0;
+    max-width: 520px;
+    text-align: center;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+
+/* ===== i colori delle parti nella prova su di te ===== */
+.prova-colori {
+    position: absolute;
+    top: 0;
+    right: 16px;
+    bottom: 16px;
+    width: 270px;
+    overflow-y: auto;
+    background: rgba(20, 20, 20, 0.88);
+    border-radius: 4px;
+    padding: 14px;
+    z-index: 1;
+}
+
+.prova-colori[hidden],
+.prova-colori.chiuso {
+    display: none;
+}
+
+.prova-colori-parte {
+    border-top: solid 1px rgba(255, 255, 255, 0.12);
+    padding: 12px 0;
+}
+
+.prova-colori .opzione-titolo {
+    font-size: 14px;
+    gap: 8px;
+}
+
+.prova-colori .opzione-valore {
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+}
+
+.prova-colori .campioni {
+    gap: 8px;
+}
+
+.prova-colori .campione {
+    width: 28px;
+    height: 28px;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.prova-colori .campione.selected {
+    outline-color: #ffffff;
+}
+
+/* il campione "Originale" ha un segno, per distinguerlo dagli altri */
+.campione-originale {
+    position: relative;
+}
+
+.campione-originale::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: solid 1.5px rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+    mix-blend-mode: difference;
+}
+
+.prova-colori-ripristina {
+    width: 100%;
+    margin-top: 4px;
+}
+
+@media (max-width: 700px) {
+    /* sul telefono il pannello sta in basso, sopra il video */
+    .prova-colori {
+        top: auto;
+        left: 16px;
+        right: 16px;
+        width: auto;
+        max-height: 45%;
+    }
+}
